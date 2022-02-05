@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8sStatus
+  labels:
+    app: k8sStatus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8sStatus
+  template:
+    metadata:
+      labels:
+        app: k8sStatus
+    spec:
+      containers:
+        - name: k8sStatus
+          image: 
+          env:
+            - name: namespace
+              value: "default"
