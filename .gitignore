@@ -1,1 +1,3 @@
 src/__pycache__/k8sClient.cpython-39.pyc
+src/*.pyc
+src/__pycache__/k8sClient.cpython-38.pyc
