@@ -1,22 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: k8sStatus
+  name: k8smanagement
   labels:
-    app: k8sStatus
+    app: k8smanagement
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: k8sStatus
+      app: k8smanagement
   template:
     metadata:
       labels:
-        app: k8sStatus
+        app: k8smanagement
     spec:
       containers:
-        - name: k8sStatus
+        - name: k8smanagement
           image: 
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
           env:
-            - name: namespace
-              value: "default"
+            - name: Production
+              value: "True"
+            - name: IsCluster
+              value: "False"
+          ports:
+          - containerPort: 5000
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8smanagement-svc
+spec:
+  type: ClusterIP
+  ports:
+   - name: "http-port"
+     protocol: "TCP"
+     port: 80
+     targetPort: 5000
+  selector:
+    name: k8smanagement

@@ -12,4 +12,4 @@ RUN pip install --upgrade setuptools
 RUN pip install -r requirements.txt
 
 
-CMD ["python", "-u", "./src/main.py"]
+CMD ["python", "-u", "./src/app.py"]

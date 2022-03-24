@@ -3,15 +3,17 @@ import datetime
 import pytz
 
 class k8sClient():
-    def get_config(isIncluster):
-        if isIncluster == true:
+
+    def get_k8s_config(self, is_cluster):
+        print("Is cluster:" + str(is_cluster))
+        if is_cluster == True:
             # https://github.com/kubernetes-client/python/blob/master/examples/in_cluster_config.py
             return config.load_incluster_config()
         else:
             # https://github.com/kubernetes-client/python/blob/master/examples/out_of_cluster_config.py
             return config.load_kube_config()
 
-    def get_pods_status(config, namespace):
+    def get_pods_status(self, config, namespace):
         k8s_core = client.CoreV1Api()
         pods = k8s_core.list_namespaced_pod('default')
         k8s_core.read_namespaced_pod_status('default')
@@ -22,49 +24,69 @@ class k8sClient():
             for status in container_statuses:
                 print(status.state)
 
-    def delete_pod(namespaces, pod):
+    def delete_pod(self, namespaces, pod):
         k8s_core = client.CoreV1Api()
         k8s_core.delete_namespaced_pod(name=pod, namespace=namespaces)
 
 
-    def get_deployments(namespace):
+    def get_deployments(self, namespace):
         v1_apps = client.AppsV1Api()
         deployments = v1_apps.list_namespaced_deployment(namespace)
         return deployments
 
-    def get_deployment(namespace, name):
+    def get_deployment(self, namespace, name):
         v1_apps = client.AppsV1Api()
-        deployment = v1_app.list_namespaced_deployment(namespace)
+        deployment = v1_apps.list_namespaced_deployment(namespace)
         for d in deployment.items:
             if name == d.metadata.name:
                 return d
         raise Exception("Not found exception")
 
-    def restart_deployment(namespace, name):
+    def restart_deployment(self, namespace, name):
         v1_apps = client.AppsV1Api()
-        deployment = get_deployment(namespace, name)
+        deployment = self.get_deployment(namespace, name)
         deployment.spec.template.metadata.annotations = {
             "kubectl.kubernetes.io/restartedAt": datetime.datetime.utcnow().replace(tzinfo=pytz.UTC).isoformat()
         }
         deployment.api_version = "apps/v1"
         deployment.kind = "Deployment"
         try:
-            v1_apps.patch_namespaced_deployment(name, namespace, deployment, pretty='true')
+            resp = v1_apps.patch_namespaced_deployment(name, namespace, deployment, pretty='true')
+            print("%s\t%s\t\t\t%s\t%s" % ("NAMESPACE", "NAME", "REVISION", "IMAGE"))
+            print(
+                "%s\t\t%s\t%s\t\t%s\n"
+                % (
+                    resp.metadata.namespace,
+                    resp.metadata.name,
+                    resp.metadata.generation,
+                    resp.spec.template.spec.containers[0].image,
+                )
+            )
         except ApiException as e:
             print("Exception when calling AppsV1Api->patch_namespaced_deployment %s\n" % e)
             raise e
 
-    def restart_deployment_all(namespace):
-        v1_apps = get_v1_apps()
-        deployments = get_deployments()
-        for d in deployment.items:
+    def restart_deployment_all(self, namespace):
+        v1_apps = client.AppsV1Api()
+        deployments = self.get_deployments(namespace)
+        for d in deployments.items:
             d.spec.template.metadata.annotations = {
                 "kubectl.kubernetes.io/restartedAt": datetime.datetime.utcnow().replace(tzinfo=pytz.UTC).isoformat()
             }
             d.api_version = "apps/v1"
             d.kind = "Deployment"
             try:
-                v1_apps.patch_namespaced_deployment(d.metadata.name, namespace, d, pretty='true')
+                resp = v1_apps.patch_namespaced_deployment(d.metadata.name, namespace, d, pretty='true')
+                print("%s\t%s\t\t\t%s\t%s" % ("NAMESPACE", "NAME", "REVISION", "IMAGE"))
+                print(
+                    "%s\t\t%s\t%s\t\t%s\n"
+                    % (
+                        resp.metadata.namespace,
+                        resp.metadata.name,
+                        resp.metadata.generation,
+                        resp.spec.template.spec.containers[0].image,
+                    )
+                )
             except ApiException as e:
                 print("Exception when calling AppsV1Api->patch_namespaced_deployment %s\n" % e)
                 raise e

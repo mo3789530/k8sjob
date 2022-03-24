@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: cluster-info-sa
+  name: cluster-management-sa
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: cluster-info-role
+  name: cluster-management-role
 rules:
 - apiGroups: [""]
   resources: ["deployments", "services", "pods"]
-  verbs: ["get", "list", "create"]
+  verbs: ["get", "list", "create", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -19,9 +19,9 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-info-role
+  name: cluster-management-role
 subjects:
 - apiGroup: ""
   kind: ServiceAccount
-  name: cluster-info-sa
-  namespace: default
+  name: cluster-management-sa
+  namespace: yuuvis
