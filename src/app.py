@@ -23,7 +23,7 @@ def restart_all():
     namespace = request.get_json()["namespace"]
     try:
         k8s = k8sClient()
-        is_cluster =- bool(os.environ.get("IsCluster",False))
+        is_cluster = bool(os.environ.get("IsCluster",False))
         k8s.get_k8s_config(is_cluster=is_cluster)
         k8s.restart_deployment_all(namespace=namespace)
     except Exception as e:
@@ -37,7 +37,7 @@ def restart():
     name = request.get_json()["name"]
     try:
         k8s = k8sClient()
-        is_cluster =- bool(os.environ.get("IsCluster",False))
+        is_cluster = bool(os.environ.get("IsCluster",False))
         k8s.get_k8s_config(is_cluster=is_cluster)
         k8s.restart_deployment(namespace=namespace, name=name)
     except Exception as e:
@@ -47,4 +47,5 @@ def restart():
 
 if __name__ == "__main__":
     production = bool(os.environ.get("Production",True))
+    logger.setLevel(logging.DEBUG)
     app.run(debug=production, host='0.0.0.0')

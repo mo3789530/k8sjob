@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: k8smanagement
-          image: 
+          image: mo053/k8smanagement:0.0.1
           resources:
             requests:
               cpu: 100m
@@ -25,21 +25,24 @@ spec:
             - name: Production
               value: "True"
             - name: IsCluster
-              value: "False"
+              value: "True"
           ports:
           - containerPort: 5000
+      serviceAccount: cluster-management-sa
+      serviceAccountName: cluster-management-sa
 ---
-
-apiVersion: v1
-kind: Service
+apiVersion: "v1"
+kind: "Service"
 metadata:
-  name: k8smanagement-svc
+  name: "k8smanagement-svc"
+  namespace: "yuuvis"
+  labels:
+    app: "k8smanagement"
 spec:
-  type: ClusterIP
   ports:
-   - name: "http-port"
-     protocol: "TCP"
-     port: 80
-     targetPort: 5000
+  - protocol: "TCP"
+    port: 80
+    targetPort: 5000
   selector:
-    name: k8smanagement
+    app: "k8smanagement"
+  type: "ClusterIP"
