@@ -8,7 +8,7 @@ kind: ClusterRole
 metadata:
   name: cluster-management-role
 rules:
-- apiGroups: [""]
+- apiGroups: ["*"]
   resources: ["deployments", "services", "pods"]
   verbs: ["get", "list", "create", "patch"]
 ---
