@@ -3,15 +3,40 @@ import logging
 from k8sClient import k8sClient
 from flask import Flask,request
 import os
+from flasgger import Swagger
 
 app = Flask(__name__)
 
 logger = getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
+swagger = Swagger(app)
 
 @app.route("/")
 def root():
+    """Example endpoint returning a message
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: palette
+        in: path
+        type: string
+        enum: ['all', 'rgb', 'cmyk']
+        required: true
+        default: all
+    definitions:
+      Palette:
+        type: object
+        properties:
+          palette_name:
+            type: array
+            items:
+              $ref: '#/definitions/Color'
+      Color:
+        type: string
+    responses:
+      200
+    """
     return {"message": "Hello World"}, 200
 
 @app.route("/api/health")
